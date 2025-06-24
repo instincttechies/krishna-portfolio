@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Krishna Resume</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; display: flex; }
+    aside { width: 30%; background: #f4f4f4; padding: 20px; }
+    main { width: 70%; padding: 20px; }
+    h2 { color: #0056a3; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    ul { padding-left: 20px; }
+    .btn { background: #0056a3; color: #fff; padding: 10px 15px; border: none; cursor: pointer; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>Contact</h2>
+    <p>📍 [Your Address]</p>
+    <p>📞 [Phone Number]</p>
+    <p>✉️ [Email]</p>
+    <p>🔗 [LinkedIn / GitHub]</p>
+
+    <h2>Skills</h2>
+    <ul>
+      <li>Python, SQL</li>
+      <li>Django, REST</li>
+      <li>GCP, AWS, Azure</li>
+      <li>Docker, Jenkins</li>
+      <li>Apache Beam</li>
+      <li>SIP, Asterisk</li>
+    </ul>
+
+    <h2>Certifications</h2>
+    <ul>
+      <li>Google Cloud Fundamentals</li>
+      <li>Jenkins Mastery</li>
+      <li>Azure DevOps</li>
+      <li>Salesforce Integration</li>
+    </ul>
+  </aside>
+  <main id="resume">
+    <button class="btn" onclick="downloadPDF()">Download as PDF</button>
+    <h2>Professional Summary</h2>
+    <p>Innovative Full Stack Developer with 10+ years of experience in Python, Django REST APIs, and cloud-native solutions.</p>
+
+    <h2>Experience</h2>
+    <p><strong>Visics ATG India Pvt Ltd</strong> (2024–Present)<br>
+    SIP-based automation platform using Asterisk + Django.<br>
+    Onsite: Netherlands (2x 1-month), Belgium (safety factories).</p>
+
+    <p><strong>Rohde & Schwarz GmbH & Co</strong> (2022–2024)<br>
+    GCP Django apps + AI pipelines.<br>
+    Onsite: Munich (10 days) product demo.</p>
+
+    <p><strong>Tech Mahindra</strong> (2020–2022)<br>
+    HRML + analytics dashboard for aerospace client in Canada.<br>
+    CI/CD with Azure DevOps.</p>
+
+    <h2>Education</h2>
+    <p>MCA – University of Madras<br>B.Sc. Mathematics – University of Madras</p>
+
+    <h2>Key Projects</h2>
+    <ul>
+      <li>SIP Intercom Tester – Django + Asterisk</li>
+      <li>Salesforce ETL Pipeline – GCP + Apache Beam</li>
+      <li>AI CI/CD Pipeline – Jenkins + Docker</li>
+    </ul>
+  </main>
+
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById('resume');
+      html2pdf().from(element).save('Krishna_Resume.pdf');
+    }
+  </script>
+</body>
+</html>
