@@ -21,6 +21,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fix company logo assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+              'https://cdn.simpleicons.org/rohdeschwarz': 'https://commons.wikimedia.org/wiki/Special:FilePath/Logo_of_Rohde_%26_Schwarz_%282009%29.svg',
+              'https://cdn.simpleicons.org/techmahindra': 'https://commons.wikimedia.org/wiki/Special:FilePath/TM_Logo_Color_Pos_RGB.svg',
+              'https://cdn.simpleicons.org/wipro': 'https://commons.wikimedia.org/wiki/Special:FilePath/Wipro_new_logo.svg',
+              'https://dsrc.com/wp-content/uploads/2024/02/dsrc-logo.png': 'https://dsrc.com/favicon.ico'
+          }
+          for old, new in replacements.items():
+              s = s.replace(old, new)
+          p.write_text(s, encoding='utf-8')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
