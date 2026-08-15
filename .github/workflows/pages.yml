@@ -45,6 +45,32 @@ jobs:
           s, n = re.subn(pattern, ford, s, count=1, flags=re.S)
           if n != 1:
               raise SystemExit('Ford experience block was not found; refusing to publish an incomplete update.')
+
+          # Add a live profile-view metric to the dashboard.
+          metric_anchor = '<div class="metric"><b>GCP</b><span>Cloud · Data · Optimization</span></div>'
+          profile_metric = '<div class="metric"><b id="profileViews">—</b><span>Profile views</span></div>'
+          if 'id="profileViews"' not in s:
+              if metric_anchor not in s:
+                  raise SystemExit('Dashboard metric anchor was not found; refusing to publish an incomplete update.')
+              s = s.replace(metric_anchor, metric_anchor + profile_metric, 1)
+
+          # Count portfolio page views and display the live total in the dashboard.
+          counter_script = '''<script>
+          (async function () {
+            const el = document.getElementById('profileViews');
+            if (!el) return;
+            try {
+              const response = await fetch('https://countapi.mileshilliard.com/api/v1/hit/krishna-portfolio-profile-views-2026');
+              const data = await response.json();
+              if (typeof data.value === 'number') el.textContent = data.value.toLocaleString();
+            } catch (e) {
+              el.textContent = '—';
+            }
+          })();
+          </script>'''
+          if 'krishna-portfolio-profile-views-2026' not in s:
+              s = s.replace('</body>', counter_script + '</body>', 1)
+
           p.write_text(s, encoding='utf-8')
           PY
 
