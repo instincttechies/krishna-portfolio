@@ -29,7 +29,6 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          # Use stable company logo assets at build time.
           replacements = {
               'https://cdn.simpleicons.org/rohdeschwarz': 'https://commons.wikimedia.org/wiki/Special:FilePath/Logo_of_Rohde_%26_Schwarz_%282009%29.svg',
               'https://cdn.simpleicons.org/techmahindra': 'https://commons.wikimedia.org/wiki/Special:FilePath/TM_Logo_Color_Pos_RGB.svg',
@@ -39,14 +38,29 @@ jobs:
           for old, new in replacements.items():
               s = s.replace(old, new)
 
-          # Expand the Ford experience entry with the professional profile supplied by Krishna.
           ford = '''<article class="job"><div class="period">CURRENT</div><div class="joblogo"><a href="https://www.ford.com/" target="_blank" rel="noopener" aria-label="Ford official website"><img src="https://cdn.simpleicons.org/ford" alt="Ford"></a></div><div class="jobbody"><h3>Tech Anchor · Python Architect · AI Tools Developer</h3><div class="co"><a href="https://www.ford.com/" target="_blank" rel="noopener">Ford Motor Company ↗</a></div><p>Engineering leader with 11+ years of experience in Python, AI tools, and platform engineering, currently working as a Tech Anchor at Ford Motor Company driving code quality, DevOps automation, and engineering governance.</p><p>I build scalable applications using Python (Django, Flask), Angular, and cloud platforms, while developing AI-powered developer tools and centralized engineering dashboards integrating SonarQube, FOSSA, and monitoring systems.</p><p>Leading initiatives around Tekton CI/CD pipelines, application health monitoring, developer productivity platforms, and engineering compliance frameworks while supporting Data Science and Data Engineering teams.</p><p>I regularly conduct engineering Gemba Walks, architecture reviews, and code quality assessments to continuously improve engineering maturity and delivery standards.</p><p>Passionate about mentoring engineers and enabling careers in tech — trained 250+ students in Python and software development through workshops and bootcamps.</p><h4>Specialties</h4><p>Python • AI Tools • DevOps • Platform Engineering • CI/CD • Tekton • Django • Flask • Angular • Cloud • ELK Stack</p></div></article>'''
           pattern = r'<article class="job"><div class="period">CURRENT</div>.*?</div></article>'
           s, n = re.subn(pattern, ford, s, count=1, flags=re.S)
           if n != 1:
               raise SystemExit('Ford experience block was not found; refusing to publish an incomplete update.')
 
-          # Add a live profile-view metric to the dashboard.
+          # Insert Visics ATG between Rohde & Schwarz and Ford in the career footprint cards.
+          if 'Visics ATG India' not in s:
+              dsrc_card = '<div class="company"><a class="company-link" href="https://dsrc.com/"'
+              visics_card = '''<div class="company"><a class="company-link" href="https://www.visics.eu/" target="_blank" rel="noopener"><div class="logo"><span style="font-weight:800;color:#1769e0">VA</span></div><b>Visics ATG India</b><small>Lead R&amp;D Engineer · Safety Systems · Official website ↗</small></a></div>'''
+              if dsrc_card not in s:
+                  raise SystemExit('DSRC company card anchor was not found; refusing to publish an incomplete update.')
+              s = s.replace(dsrc_card, visics_card + dsrc_card, 1)
+
+          # Insert Visics ATG after Rohde & Schwarz and before Ford in the career timeline.
+          timeline_anchor = '<article class="job"><div class="period">CURRENT</div>'
+          visics_job = '''<article class="job"><div class="period">LEAD R&amp;D</div><div class="joblogo"><a href="https://www.visics.eu/" target="_blank" rel="noopener" aria-label="Visics ATG official website"><span style="font-weight:800;color:#1769e0">VA</span></a></div><div class="jobbody"><h3>Lead R&amp;D Engineer · Safety Systems &amp; Intercom Research</h3><div class="co"><a href="https://www.visics.eu/" target="_blank" rel="noopener">Visics ATG India ↗</a></div><p>Worked from Chennai on R&amp;D for intercom and safety systems designed to reduce human error and improve worker safety in tunnel environments.</p><p>Travelled to the Netherlands to visit client factories, understand operational and safety challenges first-hand, and collaborate on field requirements.</p><p>Developed and researched safety-engineering applications that monitored tunnel environments, detected safety conditions and provided alerts to help protect people working in hazardous areas.</p><p>The work focused on applying software, intercom technology and safety engineering to prevent human-error incidents and help save human lives.</p></div></article>'''
+          if 'Lead R&amp;D Engineer · Safety Systems &amp; Intercom Research' not in s:
+              marker = '<article class="job"><div class="period">2020–2022</div>'
+              if marker not in s:
+                  raise SystemExit('Experience timeline insertion point was not found; refusing to publish an incomplete update.')
+              s = s.replace(marker, visics_job + marker, 1)
+
           metric_anchor = '<div class="metric"><b>GCP</b><span>Cloud · Data · Optimization</span></div>'
           profile_metric = '<div class="metric"><b id="profileViews">—</b><span>Profile views</span></div>'
           if 'id="profileViews"' not in s:
@@ -54,20 +68,7 @@ jobs:
                   raise SystemExit('Dashboard metric anchor was not found; refusing to publish an incomplete update.')
               s = s.replace(metric_anchor, metric_anchor + profile_metric, 1)
 
-          # Count portfolio page views and display the live total in the dashboard.
-          counter_script = '''<script>
-          (async function () {
-            const el = document.getElementById('profileViews');
-            if (!el) return;
-            try {
-              const response = await fetch('https://countapi.mileshilliard.com/api/v1/hit/krishna-portfolio-profile-views-2026');
-              const data = await response.json();
-              if (typeof data.value === 'number') el.textContent = data.value.toLocaleString();
-            } catch (e) {
-              el.textContent = '—';
-            }
-          })();
-          </script>'''
+          counter_script = '''<script>(async function(){const el=document.getElementById('profileViews');if(!el)return;try{const response=await fetch('https://countapi.mileshilliard.com/api/v1/hit/krishna-portfolio-profile-views-2026');const data=await response.json();if(typeof data.value==='number')el.textContent=data.value.toLocaleString()}catch(e){el.textContent='—'}})();</script>'''
           if 'krishna-portfolio-profile-views-2026' not in s:
               s = s.replace('</body>', counter_script + '</body>', 1)
 
