@@ -2,11 +2,11 @@ name: Deploy portfolio to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -44,7 +44,6 @@ jobs:
           if n != 1:
               raise SystemExit('Ford experience block was not found; refusing to publish an incomplete update.')
 
-          # Add Visics ATG to the company footprint.
           if 'Visics ATG India' not in s:
               dsrc_card = '<div class="company"><a class="company-link" href="https://dsrc.com/"'
               visics_card = '''<div class="company"><a class="company-link" href="https://www.visics.eu/" target="_blank" rel="noopener"><div class="logo"><span style="font-weight:800;color:#1769e0">VA</span></div><b>Visics ATG India</b><small>Lead R&amp;D Engineer · Safety Systems · Official website ↗</small></a></div>'''
@@ -52,15 +51,12 @@ jobs:
                   raise SystemExit('DSRC company card anchor was not found; refusing to publish an incomplete update.')
               s = s.replace(dsrc_card, visics_card + dsrc_card, 1)
 
-          # Add Visics immediately after Ford in the reverse-chronological career journey.
           visics_job = '''<article class="job"><div class="period">LEAD R&amp;D</div><div class="joblogo"><a href="https://www.visics.eu/" target="_blank" rel="noopener" aria-label="Visics ATG official website"><span style="font-weight:800;color:#1769e0">VA</span></a></div><div class="jobbody"><h3>Lead R&amp;D Engineer · Safety Systems &amp; Intercom Research</h3><div class="co"><a href="https://www.visics.eu/" target="_blank" rel="noopener">Visics ATG India ↗</a></div><p>Worked from Chennai on R&amp;D for intercom and safety systems designed to reduce human error and improve worker safety in tunnel environments.</p><p>Travelled to the Netherlands to visit client factories, understand operational and safety challenges first-hand, and collaborate on field requirements.</p><p>Developed and researched safety-engineering applications that monitored tunnel environments, detected safety conditions and provided alerts to help protect people working in hazardous areas.</p><p>The work focused on applying software, intercom technology and safety engineering to prevent human-error incidents and help save human lives.</p></div></article>'''
           if 'Lead R&amp;D Engineer · Safety Systems &amp; Intercom Research' not in s:
-              ford_end = ford
-              if ford_end not in s:
+              if ford not in s:
                   raise SystemExit('Updated Ford block was not found; refusing to publish an incomplete update.')
-              s = s.replace(ford_end, ford_end + visics_job, 1)
+              s = s.replace(ford, ford + visics_job, 1)
 
-          # Add the VCA Safety Management examination completed in the Netherlands to credentials.
           if 'VCA Safety Management Examination' not in s:
               vca_slide = '''<article class="slide"><div style="width:100%;height:390px;display:grid;place-items:center;background:#f8fafc;border:1px solid #e3e9f1;border-radius:12px"><div style="text-align:center;padding:30px"><div style="font-size:48px">VCA</div><div style="color:#1769e0;font-weight:800;letter-spacing:.08em">SAFETY MANAGEMENT</div><div style="margin-top:10px;color:#627086">Netherlands</div></div></div><div><div class="issuer">Safety Qualification · Netherlands</div><h3>VCA Safety Management Examination</h3><p>Completed the VCA Safety Management examination in the Netherlands as part of the safety-focused client-site and engineering work supporting industrial safety systems.</p><p>Demonstrates practical awareness of workplace safety, risk management and safe working practices in industrial environments.</p></div></article>'''
               marker = '</div><button class="arrow next"'
@@ -82,6 +78,14 @@ jobs:
 
           p.write_text(s, encoding='utf-8')
           PY
+
+      - name: Commit enriched site back to branch for Vercel
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "chore: publish enriched portfolio [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
